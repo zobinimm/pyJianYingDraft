@@ -1,6 +1,8 @@
 import os
 import json
 import warnings
+import time
+import uuid
 from copy import deepcopy
 
 from typing import Optional, Literal, Union, overload
@@ -155,6 +157,8 @@ class Script_file:
     """草稿文件保存路径, 仅在模板模式下有效"""
     content: Dict[str, Any]
     """草稿文件内容"""
+    meta_info: Dict[str, Any]
+    """草稿文件内容"""
 
     width: int
     """视频的宽度, 单位为像素"""
@@ -175,7 +179,10 @@ class Script_file:
     imported_tracks: List[Imported_track]
     """导入的轨道信息"""
 
-    TEMPLATE_FILE = "draft_content_template.json"
+    TEMPLATE_CONTENT_FILE = "draft_content_template.json"
+    TEMPLATE_META_FILE = "draft_meta_info_template.json"
+    DRAFT_CONTENT_FILE = "draft_content.json"
+    DRAFT_META_FILE = "draft_meta_info.json"
 
     def __init__(self, width: int, height: int, fps: int = 30):
         """创建一个剪映草稿
@@ -198,8 +205,10 @@ class Script_file:
         self.imported_materials = {}
         self.imported_tracks = []
 
-        with open(os.path.join(os.path.dirname(__file__), self.TEMPLATE_FILE), "r", encoding="utf-8") as f:
+        with open(os.path.join(os.path.dirname(__file__), self.TEMPLATE_CONTENT_FILE), "r", encoding="utf-8") as f:
             self.content = json.load(f)
+        with open(os.path.join(os.path.dirname(__file__), self.TEMPLATE_META_FILE), "r", encoding="utf-8") as f:
+            self.meta_info = json.load(f)
 
     @staticmethod
     def load_template(json_path: str) -> "Script_file":
@@ -225,6 +234,15 @@ class Script_file:
         obj.imported_tracks = [import_track(track_data) for track_data in obj.content["tracks"]]
 
         return obj
+
+    def add_meta_info(self, drafts_path) -> "Script_file":
+        self.meta_info['id'] = uuid.uuid3(uuid.NAMESPACE_DNS, os.path.basename(drafts_path)).hex
+        self.meta_info['draft_fold_path'] = drafts_path.replace("\\",'/')
+        self.meta_info['draft_timeline_metetyperials_size_'] = 0
+        self.meta_info['tm_draft_create'] = time.time()
+        self.meta_info['tm_draft_modified'] = time.time()
+        self.meta_info['draft_root_path'] = os.path.dirname(drafts_path).replace("/","\\")
+        self.meta_info['draft_removable_storage_device'] = drafts_path.split(':/')[0]
 
     def add_material(self, material: Union[Video_material, Audio_material]) -> "Script_file":
         """向草稿文件中添加一个素材"""
@@ -643,8 +661,10 @@ class Script_file:
 
     def dump(self, file_path: str) -> None:
         """将草稿文件内容写入文件"""
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open(os.path.join(file_path, self.DRAFT_CONTENT_FILE), "w", encoding="utf-8") as f:
             f.write(self.dumps())
+        with open(os.path.join(file_path, self.DRAFT_META_FILE), "w", encoding="utf-8") as f:
+            f.write(json.dumps(self.meta_info, ensure_ascii=False, indent=4))
 
     def save(self) -> None:
         """保存草稿文件, 仅在模板模式下可用
