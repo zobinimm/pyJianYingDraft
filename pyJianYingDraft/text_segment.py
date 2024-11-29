@@ -106,9 +106,11 @@ class Text_segment(Base_segment):
     extra_material_refs: List[str]
     """附加的素材id列表, 用于链接动画/特效等"""
 
+    extra_material_val: Dict[str, Any]
+
     def __init__(self, text: str, timerange: Timerange, *,
                  style: Optional[Text_style] = None, clip_settings: Optional[Clip_settings] = None,
-                 border: Optional[Text_border] = None):
+                 border: Optional[Text_border] = None, extra_material_val: Optional[Dict[str, Any]] = None):
         """创建文本片段, 并指定其时间信息、字体样式及图像调节设置
 
         片段创建完成后, 可通过`Script_file.add_segment`方法将其添加到轨道中
@@ -128,12 +130,14 @@ class Text_segment(Base_segment):
         self.border = border
 
         self.extra_material_refs = []
+        self.extra_material_val = extra_material_val or {}
 
     def export_material(self) -> Dict[str, Any]:
         """与此文本片段联系的素材, 以此不再单独定义Text_material类"""
         # 叠加各类效果的flag
         check_flag: int = 7
         if self.border: check_flag |= 8
+        fixed_width = self.extra_material_val.get('fixed_width', -1.0)
 
         return {
             "add_type": 0,
@@ -244,7 +248,7 @@ class Text_segment(Base_segment):
                 "text": self.text
             }),
             "fixed_height": -1.0,
-            "fixed_width": -1.0,
+            "fixed_width": fixed_width,
             "force_apply_line_max_width": False,
 
             "group_id": "",
