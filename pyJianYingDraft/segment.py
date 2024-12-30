@@ -55,12 +55,12 @@ class Base_segment:
     def export_json(self) -> Dict[str, Any]:
         """返回通用于各种片段的属性"""
         return {
-            "enable_adjust": True,
+            "enable_adjust": False,
             "enable_color_correct_adjust": False,
             "enable_color_curves": True,
             "enable_color_match_adjust": False,
             "enable_color_wheels": True,
-            "enable_lut": True,
+            "enable_lut": False,
             "enable_smart_color_adjust": False,
             "last_nonzero_volume": 1.0,
             "reverse": False,

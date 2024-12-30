@@ -76,7 +76,7 @@ class Text_border:
         """
         self.alpha = alpha
         self.color = color
-        self.width = width / 100.0 * 0.2  # 此映射可能不完全正确
+        self.width = width
 
     def export_json(self) -> Dict[str, Any]:
         """导出JSON数据, 放置在素材content的styles中"""
@@ -135,7 +135,7 @@ class Text_segment(Base_segment):
     def export_material(self) -> Dict[str, Any]:
         """与此文本片段联系的素材, 以此不再单独定义Text_material类"""
         # 叠加各类效果的flag
-        check_flag: int = 7
+        check_flag: int = 15
         if self.border: check_flag |= 8
         fixed_width = self.extra_material_val.get('fixed_width', -1.0)
 
@@ -162,33 +162,33 @@ class Text_segment(Base_segment):
             # "global_alpha": 1.0,
 
             # 描边 (+8), 似乎也会被content覆盖
-            # "border_alpha": 1.0,
-            # "border_color": "",
-            # "border_width": 0.08,
+            "border_alpha": 1.0,
+            "border_color": "#000000",
+            "border_width": 0.06,
 
             # 背景 (+16)
-            # "background_style": 0,
-            # "background_color": "",
-            # "background_alpha": 1.0,
-            # "background_round_radius": 0.0,
-            # "background_height": 0.14,
-            # "background_width": 0.14,
-            # "background_horizontal_offset": 0.0,
-            # "background_vertical_offset": 0.0,
+            "background_style": 0,
+            "background_color": "",
+            "background_alpha": 1.0,
+            "background_round_radius": 0.0,
+            "background_height": 0.14,
+            "background_width": 0.14,
+            "background_horizontal_offset": 0.0,
+            "background_vertical_offset": 0.0,
 
             # 发光 (+64)，属性由extra_material_refs记录
 
             # 阴影 (+32)
-            # "has_shadow": False,
-            # "shadow_alpha": 0.9,
-            # "shadow_angle": -45.0,
-            # "shadow_color": "",
-            # "shadow_distance": 5.0,
-            # "shadow_point": {
-            #     "x": 0.6363961030678928,
-            #     "y": -0.6363961030678928
-            # },
-            # "shadow_smoothing": 0.45,
+            "has_shadow": False,
+            "shadow_alpha": 0.8,
+            "shadow_angle": 0,
+            "shadow_color": "",
+            "shadow_distance": 0,
+            "shadow_point": {
+                "x": 0.0,
+                "y": -0.0
+            },
+            "shadow_smoothing": 0,
 
             # 整体字体设置, 似乎会被content覆盖
             # "font_category_id": "",
@@ -205,12 +205,12 @@ class Text_segment(Base_segment):
             # "fonts": [],
 
             # 似乎会被content覆盖
-            # "text_alpha": 1.0,
-            # "text_color": "#FFFFFF",
-            # "text_curve": None,
-            # "text_preset_resource_id": "",
-            # "text_size": 30,
-            # "underline": False,
+            "text_alpha": 1.0,
+            "text_color": "#a199cc",
+            "text_curve": None,
+            "text_preset_resource_id": "",
+            "text_size": 30,
+            "underline": False,
 
 
             "base_content": "",
@@ -224,9 +224,8 @@ class Text_segment(Base_segment):
                 "styles": [
                     {
                         "fill": {
-                            "alpha": 1.0,
                             "content": {
-                                "render_type": "solid",
+                                # "render_type": "solid",
                                 "solid": {
                                     "alpha": self.style.alpha,
                                     "color": list(self.style.color)
@@ -242,6 +241,7 @@ class Text_segment(Base_segment):
                         "bold": self.style.bold,
                         "italic": self.style.italic,
                         "underline": self.style.underline,
+                        "useLetterColor": True,
                         "strokes": [self.border.export_json()] if self.border else []
                     }
                 ],
@@ -294,7 +294,7 @@ class Text_segment(Base_segment):
             "underline_offset": 0.22,
             "underline_width": 0.05,
 
-            "use_effect_default_color": True,
+            "use_effect_default_color": False,
             "words": {
                 "end_time": [],
                 "start_time": [],
